@@ -7,48 +7,82 @@ public class Proj3 {
     // Sorting Method declarations
     // Merge Sort
     public static <T extends Comparable> void mergeSort(ArrayList<T> a, int left, int right) {
-        //divide into partitions
-        int mid = (left + right)/2;
 
-        return merge(mergeSort(a, left, mid);
+        if (left < right) {
+
+            int mid = left + right / 2;
+
+            mergeSort(a, left, mid);
+            mergeSort(a, mid + 1, right);
+
+            merge(a, left, mid, right);
+        }
+
     }
 
-    //MODIFICATIONS: now returns an array list
-    public static <T extends Comparable> ArrayList<T> merge(ArrayList<T> a, int left, int mid, int right) {
+    public static <T extends Comparable> void merge(ArrayList<T> a, int left, int mid, int right) {
 
         //establish left and right pointers
         int l = left;
-        int r = mid;
+        int r = mid + 1;
 
         ArrayList<T> sorted = new ArrayList<>();
-        while (l < mid && r <= right) {
+        while (l <= mid && r <= right) {
 
             //compare elements and move pointers accordingly
             if (a.get(r).compareTo(a.get(l)) > 0) {
-                sorted.add(a.get(r));
-                r++;
-            } else {
                 sorted.add(a.get(l));
                 l++;
+            } else {
+                sorted.add(a.get(r));
+                r++;
             }
         }
 
         //add what was left of the lists
-        if (l < mid) for (int i = l; i < mid; i++) sorted.add(a.get(l));
-        if (r <= right) for (int i = r; i <= right; i++) sorted.add(a.get(r));
+        for (int i = l; i <= mid; i++) sorted.add(a.get(i));
+        for (int i = r; i <= right; i++) sorted.add(a.get(i));
 
-        return sorted;
+        for (int i = 0; i < sorted.size(); i++)
+            a.set(left + i, sorted.get(i));
+        }
+
     }
 
     // Quick Sort
     public static <T extends Comparable> void quickSort(ArrayList<T> a, int left, int right) {
-        // Finish Me
+        //this algorithm will select the middle as the pivot
+        if (left < right) {
+            int pivot_index = partition(a, left, right);
+
+            quickSort(a, left, right);
+        }
+
     }
 
     public static <T extends Comparable> int partition (ArrayList<T> a, int left, int right) {
-        //select middle element as pivot
-        int mid = (left + right) / 2;
+        if (left < right) {
 
+            int mid = (left + right) / 2;
+
+            ArrayList<T> lowerVals = new ArrayList<>();
+            ArrayList<T> upperVals = new ArrayList<>();
+
+            for (int i = 0; i <= left + right; i++) {
+                if (i == mid) continue;
+
+                if (a.get(i).compareTo(a.get(mid)) > 0) upperVals.add(a.get(i));
+                else lowerVals.add(a.get(i));
+            }
+
+            ArrayList<T> finalArray = new ArrayList<>(lowerVals);
+            finalArray.add(a.get(mid));
+            finalArray.addAll(upperVals);
+
+            return finalArray.indexOf(a.get(mid));
+
+        }
+        return 0;
     }
 
     static <T> void swap(ArrayList<T> a, int i, int j) {
@@ -93,7 +127,7 @@ public class Proj3 {
                 }
             }
         } catch (IndexOutOfBoundsException e) { //exception will occur if either left or right child is out of bounds
-            if (left <= a.size() && a.get(curr).compareTo(a.get(left)) > 0 {
+            if (left <= a.size() && a.get(curr).compareTo(a.get(left)) > 0) {
                 swap(a, curr, left);
             }
         }
@@ -161,8 +195,7 @@ public class Proj3 {
         inputFileNameScanner.nextLine();
 
         //Read dataset into an array file
-
-        ArrayList<DataObj> initData = new ArrayList<>();
+        ArrayList<DataObj> arrayData = new ArrayList<>();
 
         for (int i = 0; i < numLines; i++) {
             String obj = inputFileNameScanner.nextLine();
@@ -176,9 +209,11 @@ public class Proj3 {
                     objInfo[4]
             );
 
-            initData.add(currData);
+            arrayData.add(currData);
         }
 
 
-    }
+
+
 }
+
