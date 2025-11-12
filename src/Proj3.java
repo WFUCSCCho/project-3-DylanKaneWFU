@@ -92,6 +92,16 @@ public class Proj3 {
     public static <T extends Comparable> void heapSort(ArrayList<T> a, int left, int right) {
         // first need to heapify the array
         heapify(a, (left + right) / 2, left, right);
+
+        // delete maximum element and move it to the end
+        for (int i = a.size() - 1; i > 0; i--) {
+            T tempData = a.get(0);
+            a.set(0, a.get(i));
+            a.set(i, tempData);
+            heapify(a, 0, i);
+
+        }
+
     }
 
     //MODIFICATIONS: added a curr variable
@@ -193,6 +203,16 @@ public class Proj3 {
 
         String inputFileName = args[0];
         int numLines = Integer.parseInt(args[1]);
+        String algorithmType = args[3];
+        if (!algorithmType.equals("bubble") ||
+                !algorithmType.equals("merge") ||
+                !algorithmType.equals("quick") ||
+                !algorithmType.equals("heap") ||
+                !algorithmType.equals("transposition")) {
+            System.err.println("Invalid sorting algorithm");
+            System.exit(1);
+        }
+
 
         // For file input
         FileInputStream inputFileNameStream = null;
@@ -235,68 +255,31 @@ public class Proj3 {
             2. Reversed
         */
 
-        double[] quickSortTimes = new double[3];
-        double[] mergeSortTimes = new double[3];
-        double[] oddEvenTimes = new double[3];
-        double[] heapSortTimes = new double[3];
-        double[] bubbleSortTimes = new double[3];
-
-        ArrayList<ArrayList<DataObj>> quickSortLists = new ArrayList<>();
-        ArrayList<ArrayList<DataObj>> mergeSortLists = new ArrayList<>();
-        ArrayList<ArrayList<DataObj>> oddEvenLists = new ArrayList<>();
-        ArrayList<ArrayList<DataObj>> heapSortLists = new ArrayList<>();
-        ArrayList<ArrayList<DataObj>> bubbleSortLists = new ArrayList<>();
-
-        int[] bubbleSortSwaps = new int[3];
-        int[] oddEvenSwaps = new int[3];
+        double[] sortTimes = new double[3];
+        ArrayList<ArrayList<DataObj>> sortLists = new ArrayList<>();
+        int[] numSwaps = new int[3];
+        String[] listTitles = {"Sorted", "Shuffled", "Reversed"};
 
         for (int i = 0; i < 3; i++) {
-
-            //quickSort timer
             arrayToSort = chooseArray(arrayData, i);
             startTimer = System.nanoTime();
-            quickSort(arrayToSort, 0, arrayToSort.size() - 1);
+            if (algorithmType.equals("bubble")) {
+                numSwaps[i] = bubbleSort(arrayToSort, arrayToSort.size());
+            }
+            if (algorithmType.equals("merge")) {
+                mergeSort(arrayToSort, 0, arrayToSort.size() - 1);
+            }
+            if (algorithmType.equals("quick")) {
+                quickSort(arrayToSort, 0, arrayToSort.size() - 1);
+            }
+            if (algorithmType.equals("heap")) {
+                heapSort(arrayToSort, 0, arrayToSort.size() - 1);
+            }
+            if (algorithmType.equals("transposition")) {
+                numSwaps[i] = transpositionSort(arrayToSort, arrayToSort.size());
+            }
             endTimer = System.nanoTime();
-            quickSortTimes[i] = (endTimer - startTimer) / 1_000_000_000.0;
-            ArrayList<DataObj> quickSortList = new ArrayList<>(arrayToSort);
-            quickSortLists.add(quickSortList);
-
-            //mergeSort timer
-            arrayToSort = chooseArray(arrayData, i);
-            startTimer = System.nanoTime();
-            //mergeSort(arrayToSort, 0, arrayToSort.size() - 1);
-            endTimer = System.nanoTime();
-            mergeSortTimes[i] = (endTimer - startTimer) / 1_000_000_000.0;
-            ArrayList<DataObj> mergeSortList = new ArrayList<>(arrayToSort);
-            mergeSortLists.add(mergeSortList);
-
-            //bubbleSort timer
-            arrayToSort = chooseArray(arrayData, i);
-            startTimer = System.nanoTime();
-            bubbleSortSwaps[i] = bubbleSort(arrayToSort, arrayToSort.size());
-            endTimer = System.nanoTime();
-            bubbleSortTimes[i] = (endTimer - startTimer) / 1_000_000_000.0;
-            ArrayList<DataObj> bubbleSortList = new ArrayList<>(arrayToSort);
-            bubbleSortLists.add(bubbleSortList);
-
-
-            //oddEven timer
-            arrayToSort = chooseArray(arrayData, i);
-            startTimer = System.nanoTime();
-            oddEvenSwaps[i] = transpositionSort(arrayToSort, arrayToSort.size());
-            endTimer = System.nanoTime();
-            oddEvenTimes[i] = (endTimer - startTimer) / 1_000_000_000.0;
-            ArrayList<DataObj> oddEvenList = new ArrayList<>(arrayToSort);
-            oddEvenLists.add(oddEvenList);
-
-            //heapSort timer
-            arrayToSort = chooseArray(arrayData, i);
-            startTimer = System.nanoTime();
-            heapSort(arrayToSort, 0, arrayToSort.size() - 1);
-            endTimer = System.nanoTime();
-            heapSortTimes[i] = (endTimer - startTimer) / 1_000_000_000.0;
-            ArrayList<DataObj> heapSortList = new ArrayList<>(arrayToSort);
-            heapSortLists.add(heapSortList);
+            sortLists.add( new ArrayList<>(arrayToSort));
         }
 
         //Write to output file
@@ -314,19 +297,56 @@ public class Proj3 {
         //check if file is empty, if so add a header
         if (needsHeader) analysisWriter.println(
                 "Lines Read," +
-                "Sorted ," +
-                "Random BST Insert Time," +
-                "Sorted AVL Insert Time," +
-                "Random AVL Insert Time");
+                "Algorithm Type" +
+                "Sorted Time," +
+                "Shuffled Time," +
+                "Reversed Time" +
+                        "Sorted Swaps," +
+                        "Shuffled Swaps," +
+                        "Reversed Swaps");
 
-        analysisWriter.printf("%d,%.9f,%.9f,%.9f,%.9f\n",
+        if (!algorithmType.equals("bubble") || !algorithmType.equals("transposition")) {
+            numSwaps[0] = -1;
+            numSwaps[1] = -1;
+            numSwaps[2] = -1;
+        }
+
+        if (algorithmType.equals("transposition")) {
+            sortTimes[0] = -1.0;
+            sortTimes[1] = -1.0;
+            sortTimes[2] = -1.0;
+        }
+
+        analysisWriter.printf("%d,%s,%.9f,%.9f,%.9f,%d,%d,%d\n",
                 numLines,
-                sortedBSTSearchTime,
-                randomBSTSearchTime,
-                sortedAVLSearchTime,
-                randomAVLSearchTime
+                algorithmType,
+                sortTimes[0],
+                sortTimes[1],
+                sortTimes[3],
+                numSwaps[0],
+                numSwaps[1],
+                numSwaps[2]
         );
 
+        analysisWriter.flush();
+        analysisWriter.close();
 
+        //sorted list printer
+        for (int i = 0; i < 4; i++) {
+
+            System.out.printf("List Type: %s\n", listTitles[i]);
+
+            for (int j = 0; j < numLines; j++) {
+                sortedWriter.println(
+                        sortLists
+                        .get(i)
+                        .get(j)
+                        .toString());
+            }
+            System.out.println();
+        }
+
+        sortedWriter.flush();
+        sortedWriter.close();
     }
 
