@@ -81,14 +81,13 @@ public class DataObj implements Comparable<DataObj> {
     @Override
     public String toString() {
         //returns a string of its data
-        /*return String.format(
+        return String.format(
                 "\nName: %s\nVolume: %f\nCalories: %d\nCaffeine: %d\nType: %s\n",
                 this.name,
                 this.volume,
                 this.calories,
                 this.caffeine,
                 this.type
-        );*/
-        return "" + caffeine;
+        );
     }
 }

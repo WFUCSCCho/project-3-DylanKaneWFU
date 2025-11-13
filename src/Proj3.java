@@ -19,9 +19,6 @@ public class Proj3 {
     // Merge Sort
     public static <T extends Comparable> void mergeSort(ArrayList<T> a, int left, int right) {
 
-        for (int j = 0; j < a.size(); j++) System.out.print(a.get(j) + " ");
-        System.out.println();
-
         if (left < right) {
 
             int mid = (left + right) / 2;
